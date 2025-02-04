@@ -33,13 +33,10 @@ if __name__ == '__main__':
     if samplingRatio < 2:
         raise RuntimeError(
             'Update frequency needs to be at least '
-            'double the sample frequency to avoid errors!')
+            'double the sample frequency to avoid sampling errors!')
 
     while reader.isRunning():
-        value = reader.latestValue()
-
-        if value is not None:
-            print(reader.latestValue())
+        print(reader.latestValue())
 
         time.sleep(1)
 

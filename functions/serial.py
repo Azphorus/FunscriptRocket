@@ -14,6 +14,13 @@ class serialReader:
         
         self.fetchThread.start()
 
+        while self.latestValue() is None:
+            time.sleep(0.1)
+
+        print(
+            'Successfully connected to serial device '
+            f'on comport "{comPort}"!')
+
     def latestValue(self):
         return self.valueDict[0]
     
