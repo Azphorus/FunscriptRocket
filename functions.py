@@ -1,11 +1,13 @@
 import serial
 import serial.tools.list_ports
+import serial.serialutil
 import threading
 import time
 
 class serialReader:
     def __init__(self, comPort, baudrate):
-        self.valueDict = [-1, True]
+
+        self.valueDict = [None, True]
 
         self.fetchThread = threading.Thread(
             target=lambda: serialReadLoop(self.valueDict, comPort, baudrate))
@@ -32,7 +34,12 @@ def serialReadLoop(returnList, comPort, baudrate):
     ser = serial.Serial(comPort, baudrate)
 
     while returnList[1]:
-        returnList[0] = int(ser.readline().decode().strip())
+        try:
+            returnList[0] = int(ser.readline().decode().strip())
+
+        except serial.serialutil.SerialException:
+            print('Serial device disconnected!')
+            returnList[1] = False
 
 def getComPortList():
     '''

@@ -3,12 +3,17 @@ import time
 import signal
 
 
-baudRate = 9600
-
+baudRate = 9600 #bits per second
+resolution = 1024 #Android nano 10bits = 2^10
+sampleFrequency = 100 #times per second
 
 if __name__ == '__main__':
 
-    reader = functions.serialReader(functions.getComPort(), baudRate)
+    comPort = functions.getComPort()
+
+    time.sleep(0.1) #To ensure device is fully initiated
+
+    reader = functions.serialReader(comPort, baudRate)
 
     def shutdown(signum, frame):
         reader.stop()
@@ -16,7 +21,25 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
 
+    #Arduino int is 2 bytes
+    updateFrequency = int(baudRate/(16))
+    samplingRatio = updateFrequency/sampleFrequency
+
+    print(
+        f'Update frequency: {updateFrequency}\n'
+        f'Sample frequency: {sampleFrequency}\n'
+        f'Sampling ratio: {samplingRatio}')
+    
+    if samplingRatio < 2:
+        raise RuntimeError(
+            'Update frequency needs to be at least '
+            'double the sample frequency to avoid errors!')
+
     while reader.isRunning():
-        print(reader.latestValue())
+        value = reader.latestValue()
+
+        if value is not None:
+            print(reader.latestValue())
+
         time.sleep(1)
 
