@@ -1,4 +1,4 @@
-import functions
+import functions.serial as serialHelp
 import time
 import signal
 
@@ -9,11 +9,11 @@ sampleFrequency = 100 #times per second
 
 if __name__ == '__main__':
 
-    comPort = functions.getComPort()
+    comPort = serialHelp.getComPort()
 
     time.sleep(0.1) #To ensure device is fully initiated
 
-    reader = functions.serialReader(comPort, baudRate)
+    reader = serialHelp.serialReader(comPort, baudRate)
 
     def shutdown(signum, frame):
         reader.stop()
