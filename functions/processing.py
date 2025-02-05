@@ -37,3 +37,24 @@ def turningPoints(npArray):
 
     return np.array([first, second])
 
+
+def velocityFilter(npArray, threshold=0.1):
+    '''
+    Return an array only containing points where the derivative changes
+    over the threshold value. Also includes any points returned by turningPoints.
+    '''
+
+    dx = np.diff(npArray[1])
+
+    turningPoints = dx[1:] * dx[:-1] < 0
+    velocity = abs(dx[1:] - dx[:-1]) > threshold
+    mask = np.logical_or(turningPoints, velocity)
+
+    first = np.array(npArray[0][1:-1])[mask]
+    first = np.concatenate(([npArray[0][0]], first, [npArray[0][-1]]))
+
+    second = np.array(npArray[1][1:-1])[mask]
+    second = np.concatenate(([npArray[1][0]], second, [npArray[1][-1]]))
+
+    return np.array([first, second])
+
