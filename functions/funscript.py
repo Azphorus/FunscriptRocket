@@ -94,7 +94,13 @@ class Scripter():
 
         self.points = np.array([trimmedTime, trimmedPos])
 
-        np.savetxt(f'{self.label}_raw.txt', self.points, fmt='%d')
+        rawLabel = f'{self.label}_raw.txt'
+
+        print(f'Saving raw output to file "{rawLabel}"...')
+        np.savetxt(rawLabel, self.points, fmt='%d')
+        
+        print(f'Stopping serial reader...')
+        self.serialReader.stop()
 
     def getPosition(self):
         '''
