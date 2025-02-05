@@ -20,23 +20,29 @@ def rdpAlgorithm(npArray, threshold=0.9):
     mask = rdppy.filter(npArray.T, threshold)
     return np.array([np.array(npArray[0])[mask], np.array(npArray[1])[mask]])
 
-def turningPoints(npArray):
+def turningMask(npArray):
     '''
-    Return an array only containing the turning points (where the derivative changes)
+    Return a mask array only containing the turning points (where the derivative changes)
     '''
 
     dx = np.diff(npArray[1])
 
     mask = dx[1:] * dx[:-1] < 0
 
-    first = np.array(npArray[0][1:-1])[mask]
-    first = np.concatenate(([npArray[0][0]], first, [npArray[0][-1]]))
+    mask2 = (dx[1:] == 0) != (dx[:-1] == 0) #If it went from standstill to moving or opposite
 
-    second = np.array(npArray[1][1:-1])[mask]
-    second = np.concatenate(([npArray[1][0]], second, [npArray[1][-1]]))
+    mask = np.logical_or(mask, mask2)
 
-    return np.array([first, second])
+    return np.concatenate(([True], mask, [True])) #Add first and last points
 
+def turningPoints(npArray):
+    '''
+    Return an array only containing the turning points (where the derivative changes)
+    '''
+
+    mask = turningMask(npArray)
+
+    return np.array([np.array(npArray[0])[mask], np.array(npArray[1])[mask]])
 
 def velocityFilter(npArray, threshold=0.1):
     '''
@@ -79,10 +85,10 @@ def turningAndFurthest(npArray, threshold=1):
     returnList = [[], []]
 
     #Get turning mask and points
-    dx = np.diff(npArray[1])
+    mask1 = turningMask(npArray)
+    mask2 = turningMask(np.flip(npArray))
 
-    mask = dx[1:] * dx[:-1] < 0
-    mask = np.concatenate(([True], mask, [True])) #Add first and last points
+    mask = np.logical_or(mask1, mask2)
 
     turningPoints = np.array([np.array(npArray[0])[mask], np.array(npArray[1])[mask]])
 
