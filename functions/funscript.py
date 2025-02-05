@@ -87,6 +87,11 @@ class Scripter():
         
         print(f'Logged {i+1} points!')
 
+        trimmedTime = np.trim_zeros(self.points[0], 'b')
+        trimmedPos = self.points[1][:len(trimmedTime)]
+
+        self.points = np.array([trimmedTime, trimmedPos])
+
     def getPosition(self):
         '''
         Returns current funscript position if it has moved.
