@@ -5,6 +5,7 @@ import functions.funscript as funscript
 
 baudRate = 9600 #bits per second
 sampleFrequency = 100 #times per second
+inverted = False
 
 #Video meta
 title = 'testing'
@@ -39,5 +40,5 @@ if __name__ == '__main__':
 
     points = funscript.pointFilter(points)
 
-    funscript.printFile(points, length, title=title, creator=creator)
+    funscript.printFile(points, length, title=title, creator=creator, inverted=inverted)
 
