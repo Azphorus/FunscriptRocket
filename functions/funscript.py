@@ -85,7 +85,7 @@ class Scripter():
                 if print2terminal:
                     print(f'[{self.points[0][i]}, {self.points[1][i]}]')
         
-        print(f'Logged {i} points!')
+        print(f'Logged {i+1} points!')
 
     def getPosition(self):
         '''
