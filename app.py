@@ -1,7 +1,7 @@
 import functions.serial as serialHelp
 import time
 import signal
-
+import rdppy
 
 baudRate = 9600 #bits per second
 resolution = 1024 #Android nano 10bits = 2^10
