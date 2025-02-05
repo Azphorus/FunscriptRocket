@@ -94,3 +94,22 @@ def getComPort(retryAttempts=100, retryWait=1):
     
     return portList[0][0]
 
+def getExtremeValues(serialReader):
+    '''
+    Get minimum and maximum serial value from the device.
+
+    Return min, max
+    '''
+    input('Set device to one min/max position then press enter.\n')
+
+    value1 = serialReader.latestValue()
+
+    input('Set device to one opposite min/max position then press enter.\n')
+
+    value2 = serialReader.latestValue()
+
+    if value1 > value2:
+        return value2, value1
+    
+    return value1, value2
+

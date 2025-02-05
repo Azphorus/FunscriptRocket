@@ -6,9 +6,8 @@ import functions.processing as processing
 
 
 class Scripter():
-    def __init__(self, baudRate, maxAnalog, sampleFrequency, label='unnamed', maxPosition=100):
+    def __init__(self, baudRate, sampleFrequency, label='unnamed', maxPosition=100):
 
-        self.maxAnalog = maxAnalog
         self.sampleFrequency = sampleFrequency
         self.label = label
         self.maxPosition = maxPosition #"range" in the funscript metadata
@@ -35,6 +34,12 @@ class Scripter():
         time.sleep(0.1) #To ensure device is fully initiated
 
         self.serialReader = serialHelp.SerialReader(comPort, baudRate)
+
+        self.minAnalog, self.maxAnalog = serialHelp.getExtremeValues(self.serialReader)
+
+        print(f'Min signal: {self.minAnalog}\nMax signal: {self.maxAnalog}')
+
+        self.analogRange = self.maxAnalog - self.minAnalog
 
     def startRecording(self, length, print2terminal=False, appendTime=100):
         '''
@@ -115,13 +120,27 @@ class Scripter():
         self.serialReader.stop()
 
         return self.points
+    
+    def filterAnalog(self):
+        '''
+        Return filtered serial value.
+        '''
+        analogValue = self.serialReader.latestValue()
+
+        if analogValue > self.maxAnalog:
+            return self.analogRange
+        
+        elif analogValue < self.minAnalog:
+            return 0
+        
+        return analogValue - self.minAnalog
 
     def getPosition(self):
         '''
         Returns current funscript position if it has moved.
         '''
         
-        currentPosition = round((self.serialReader.latestValue()/self.maxAnalog)*self.maxPosition)
+        currentPosition = round((self.filterAnalog()/self.analogRange)*self.maxPosition)
 
         if currentPosition == self.lastPosition:
             return None
