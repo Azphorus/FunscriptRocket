@@ -5,7 +5,7 @@ import functions.funscript as funscript
 
 baudRate = 9600 #bits per second
 sampleFrequency = 100 #times per second
-inverted = False
+inverted = False #Pos 0 should be the "fully inserted/down" position, if not set inverted to true to flip
 
 #Video meta
 title = 'testing'
