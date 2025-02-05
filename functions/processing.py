@@ -29,40 +29,72 @@ def turningMask(npArray):
 
     mask = dx[1:] * dx[:-1] < 0
 
-    mask2 = (dx[1:] == 0) != (dx[:-1] == 0) #If it went from standstill to moving or opposite
+    mask2 = np.logical_xor((dx[1:] == 0), (dx[:-1] == 0)) #If it went from standstill to moving or opposite
 
     mask = np.logical_or(mask, mask2)
 
     return np.concatenate(([True], mask, [True])) #Add first and last points
 
-def turningPoints(npArray):
+def turningPoints(npArray, bothSides=True):
     '''
     Return an array only containing the turning points (where the derivative changes)
     '''
 
     mask = turningMask(npArray)
 
+    if bothSides:
+        mask2 = turningMask(np.flip(npArray))
+
+        mask = np.logical_or(mask, mask2)
+
     return np.array([np.array(npArray[0])[mask], np.array(npArray[1])[mask]])
 
-def velocityFilter(npArray, threshold=0.1):
+def velocityMask(npArray, threshold=0.1):
+    '''
+    Return a mask array where the derivative changes
+    over the threshold value.
+    '''
+
+    dx = np.diff(np.concatenate((npArray[1], [npArray[1][-1]])))
+
+    mask = np.zeros(len(dx), dtype=bool)
+
+    prevVelocity = None
+    for i, velocity in enumerate(dx):
+        if i == 0:
+            prevVelocity = velocity
+            mask[i] = True
+            continue
+
+        try:
+            nextVelocity = dx[i+1]
+        except IndexError:
+            mask[i] = True
+            break
+
+        if abs(prevVelocity - nextVelocity) > threshold:
+            mask[i] = True
+            prevVelocity = velocity
+
+        else:
+            prevVelocity = velocity
+
+    return mask
+
+def velocityFilter(npArray, threshold=0.1, bothSides=True):
     '''
     Return an array only containing points where the derivative changes
-    over the threshold value. Also includes any points returned by turningPoints.
+    over the threshold value.
     '''
 
-    dx = np.diff(npArray[1])
+    mask = velocityMask(npArray, threshold=threshold)
 
-    turningPoints = dx[1:] * dx[:-1] < 0
-    velocity = abs(dx[1:] - dx[:-1]) > threshold
-    mask = np.logical_or(turningPoints, velocity)
+    if bothSides:
+        mask2 = turningMask(np.flip(npArray))
 
-    first = np.array(npArray[0][1:-1])[mask]
-    first = np.concatenate(([npArray[0][0]], first, [npArray[0][-1]]))
+        mask = np.logical_or(mask, mask2)
 
-    second = np.array(npArray[1][1:-1])[mask]
-    second = np.concatenate(([npArray[1][0]], second, [npArray[1][-1]]))
-
-    return np.array([first, second])
+    return np.array([np.array(npArray[0])[mask], np.array(npArray[1])[mask]])
 
 def normalLength(line, point):
     '''
@@ -129,4 +161,19 @@ def turningAndFurthest(npArray, threshold=1):
             returnList[1] += ([npArray[1][i]] + [p[1] for p in extraPoints])
 
     return np.array(returnList, dtype=int)
+
+def minimumStep(npArray, minStep=3):
+    '''
+    Update given array so that values do not change unless minStep is met.
+    '''
+    for i, position in enumerate(npArray[1]):
+        if i == 0:
+            prevPosition = position
+            continue
+        
+        if abs(position - prevPosition) < minStep:
+            npArray[1][i] = prevPosition
+            continue
+
+        prevPosition = position
 

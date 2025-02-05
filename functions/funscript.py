@@ -129,22 +129,38 @@ class Scripter():
         
         return currentPosition
 
-def pointFilter(npArray, vectorThreshold=0.9, velocityThreshold=3, print2terminal=True):
+def pointFilter(npArray, rdp1=0.9, minStep=3, rdp2=4, print2terminal=True):
     '''
     Vectorizes then 
     '''
     if print2terminal:
-        print(f'Original length: {len(npArray[0])}')
+        print(
+            f'Original length: {len(npArray[0])}'
+            f'Applying RDP filter with threshold {rdp1}...')
 
-    points = processing.rdpAlgorithm(points, threshold=vectorThreshold)
-
-    if print2terminal:
-        print(f'Vectorized: {len(points[0])}')
-
-    points = processing.velocityFilter(points, threshold=velocityThreshold)
+    points = processing.rdpAlgorithm(npArray, threshold=rdp1)
 
     if print2terminal:
-        print(f'Velocity Filter: {len(points[0])}')
+        print(
+            f'RDP Filter pass one: {len(points[0])}'
+            f'Applying min filter with step {minStep}...')
+    
+    processing.minimumStep(points, minStep=minStep)
+
+    if print2terminal:
+        print('Applying turning filter...')
+    
+    points = processing.turningPoints(points)
+
+    if print2terminal:
+        print(
+            f'Turning filter: {len(points[0])}'
+            f'Applying RDP filter with threshold {rdp2}...')
+
+    points = processing.rdpAlgorithm(points, threshold=rdp2)
+
+    if print2terminal:
+        print(f'RDP Filter pass two: {len(points[0])}')
 
     return points
 
