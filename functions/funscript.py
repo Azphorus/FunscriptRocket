@@ -4,10 +4,11 @@ import functions.serial as serialHelp
 
 
 class Scripter():
-    def __init__(self, baudRate, maxAnalog, sampleFrequency, maxPosition=100):
+    def __init__(self, baudRate, maxAnalog, sampleFrequency, label='unnamed', maxPosition=100):
 
         self.maxAnalog = maxAnalog
         self.sampleFrequency = sampleFrequency
+        self.label = label
         self.maxPosition = maxPosition #"range" in the funscript metadata
 
         self.lastPosition = None
@@ -91,6 +92,8 @@ class Scripter():
         trimmedPos = self.points[1][:len(trimmedTime)]
 
         self.points = np.array([trimmedTime, trimmedPos])
+
+        np.savetxt(f'{self.label}_raw.txt', self.points, fmt='%d')
 
     def getPosition(self):
         '''
