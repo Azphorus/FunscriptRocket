@@ -4,7 +4,7 @@ import serial.serialutil
 import threading
 import time
 
-class serialReader:
+class SerialReader:
     def __init__(self, comPort, baudrate):
 
         self.valueDict = [None, True]
