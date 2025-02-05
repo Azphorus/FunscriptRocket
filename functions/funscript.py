@@ -135,14 +135,14 @@ def pointFilter(npArray, rdp1=0.9, minStep=3, rdp2=4, print2terminal=True):
     '''
     if print2terminal:
         print(
-            f'Original length: {len(npArray[0])}'
+            f'Original length: {len(npArray[0])}\n'
             f'Applying RDP filter with threshold {rdp1}...')
 
     points = processing.rdpAlgorithm(npArray, threshold=rdp1)
 
     if print2terminal:
         print(
-            f'RDP Filter pass one: {len(points[0])}'
+            f'RDP Filter pass one: {len(points[0])}\n'
             f'Applying min filter with step {minStep}...')
     
     processing.minimumStep(points, minStep=minStep)
@@ -154,7 +154,7 @@ def pointFilter(npArray, rdp1=0.9, minStep=3, rdp2=4, print2terminal=True):
 
     if print2terminal:
         print(
-            f'Turning filter: {len(points[0])}'
+            f'Turning filter: {len(points[0])}\n'
             f'Applying RDP filter with threshold {rdp2}...')
 
     points = processing.rdpAlgorithm(points, threshold=rdp2)
