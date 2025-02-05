@@ -7,9 +7,12 @@ baudRate = 9600 #bits per second
 maxAnalog = 1023 #Android nano 10bits > 2^10 = 1024 - 1 = 1023 (as signal starts at 0)
 sampleFrequency = 100 #times per second
 
+#Video meta
+length = 20 #seconds
+
 
 def countdown(seconds=3):
-    input('Enter anything to start recording:\n')
+    input('Press enter to start recording:\n')
 
     print('Starting in:')
     time.sleep(1)
@@ -31,5 +34,5 @@ if __name__ == '__main__':
 
     countdown()
 
-    scripter.startRecording(length=5, print2terminal=True)
+    scripter.startRecording(length=length, print2terminal=True)
 
