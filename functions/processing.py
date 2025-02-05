@@ -91,6 +91,8 @@ def turningAndFurthest(npArray, threshold=1):
 
         if isTurning:
             if (j + 1) == len(turningPoints[0]):
+                returnList[0] += [npArray[0][i]]
+                returnList[1] += [npArray[1][i]]
                 break
 
             line = [[turningPoints[0][j], turningPoints[1][j]], [turningPoints[0][j+1], turningPoints[1][j+1]]]
