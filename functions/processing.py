@@ -27,8 +27,13 @@ def turningPoints(npArray):
 
     dx = np.diff(npArray[1])
 
-    first = np.extract(dx[1:] * dx[:-1] < 0, npArray[0])
-    second = np.extract(dx[1:] * dx[:-1] < 0, npArray[1])
+    mask = dx[1:] * dx[:-1] < 0
+
+    first = np.array(npArray[0][1:-1])[mask]
+    first = np.concatenate(([npArray[0][0]], first, [npArray[0][-1]]))
+
+    second = np.array(npArray[1][1:-1])[mask]
+    second = np.concatenate(([npArray[1][0]], second, [npArray[1][-1]]))
 
     return np.array([first, second])
 
