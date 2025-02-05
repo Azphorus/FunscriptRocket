@@ -1,12 +1,31 @@
 import time
+import numpy as np
 import functions.serial as serialHelp
 
 
 class Scripter():
-    def __init__(self, baudRate, maxAnalog, maxPosition=100):
+    def __init__(self, baudRate, maxAnalog, sampleFrequency, maxPosition=100):
 
         self.maxAnalog = maxAnalog
+        self.sampleFrequency = sampleFrequency
         self.maxPosition = maxPosition #"range" in the funscript metadata
+
+        self.lastPosition = None
+        self.startTime = None
+
+        #Arduino int is 2 bytes
+        updateFrequency = int(baudRate/(16))
+        samplingRatio = updateFrequency/sampleFrequency
+
+        print(
+            f'Update frequency: {updateFrequency}\n'
+            f'Sample frequency: {sampleFrequency}\n'
+            f'Sampling ratio: {samplingRatio}')
+        
+        if samplingRatio < 2:
+            raise RuntimeError(
+                'Update frequency needs to be at least '
+                'double the sample frequency to avoid sampling errors!')
 
         comPort = serialHelp.getComPort()
 
@@ -14,7 +33,56 @@ class Scripter():
 
         self.serialReader = serialHelp.SerialReader(comPort, baudRate)
 
-        self.lastPosition = None
+    def startRecording(self, length, print2terminal=False):
+        '''
+        length: Length of funscript in seconds.
+        '''
+        startTime = time.time()
+        
+        startPosition = self.getPosition()
+
+        if startPosition is None:
+            startPosition = self.lastPosition
+
+        maximumPoints = length*self.sampleFrequency
+        self.points = np.array(
+            [np.zeros(maximumPoints, dtype=int), np.zeros(maximumPoints, dtype=int)])
+
+        self.points[0][0] = 0
+        self.points[1][0] = startPosition
+
+        if print2terminal:
+            print(f'[{self.points[0][0]}, {self.points[1][0]}]')
+
+        i = 0
+        currentTime = 0
+        maxTime = length*1000
+
+        while self.serialReader.isRunning():
+
+            time.sleep(1/self.sampleFrequency)
+
+            currentTime = round((time.time() - startTime)*1000)
+
+            if currentTime > maxTime:
+                break
+
+            currentPosition = self.getPosition()
+
+            if currentPosition is not None:
+
+                i += 1
+
+                if i > maximumPoints:
+                    break
+
+                self.points[0][i] = currentTime
+                self.points[1][i] = currentPosition
+
+                if print2terminal:
+                    print(f'[{self.points[0][i]}, {self.points[1][i]}]')
+        
+        print(f'Logged {i} points!')
 
     def getPosition(self):
         '''
