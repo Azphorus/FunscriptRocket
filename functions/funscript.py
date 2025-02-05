@@ -1,4 +1,5 @@
 import time
+import json
 import numpy as np
 import functions.serial as serialHelp
 import functions.processing as processing
@@ -35,13 +36,11 @@ class Scripter():
 
         self.serialReader = serialHelp.SerialReader(comPort, baudRate)
 
-    def startRecording(self, length, lengthBuffer=3, print2terminal=False, appendTime=100):
+    def startRecording(self, length, print2terminal=False, appendTime=100):
         '''
         length: Length of funscript in seconds (round up video length).
-        lengthBuffer: Extra seconds incase the recording is not (perfectly) synced.
         appendTime: Time in ms for when to append the last position a millisecond before current time.
         '''
-        length += lengthBuffer
 
         startTime = time.time()
         
@@ -115,6 +114,8 @@ class Scripter():
         print(f'Stopping serial reader...')
         self.serialReader.stop()
 
+        return self.points
+
     def getPosition(self):
         '''
         Returns current funscript position if it has moved.
@@ -163,4 +164,44 @@ def pointFilter(npArray, rdp1=0.9, minStep=3, rdp2=4, print2terminal=True):
         print(f'RDP Filter pass two: {len(points[0])}')
 
     return points
+
+def printFile(npArray, duration, range=100, title='unnamed', version=1.0, inverted=False, creator='', description='', license='', performerList=[], script_url='', tagList=[], video_url='', type=''):
+    '''
+    Print funscript file.
+    '''
+
+    funDict = {}
+
+    funDict['version'] = version
+    funDict['inverted'] = inverted
+    funDict['range'] = range
+
+    actionList = []
+    metaDict = {}
+
+    funDict['actions'] = actionList
+    funDict['metadata'] = metaDict
+
+    metaDict['title'] = title
+    metaDict['duration'] = duration
+
+    for stringInput in [creator, description, license, script_url, video_url, type]:
+        metaDict[stringInput] = stringInput
+
+    if len(performerList) != 0:
+        metaDict['performers'] = performerList
+    
+    if len(tagList) != 0:
+        metaDict['tags'] = tagList
+
+    for i, position in enumerate(npArray[1]):
+        actionList.append({
+            'pos': int(position),
+            'at': int(npArray[0][i])})
+    
+    filename = f'{title}.funscript'
+    print(f'Writing "{filename}"...')
+
+    with open(filename, 'w') as funFile:
+        funFile.write(json.dumps(funDict))
 

@@ -8,6 +8,8 @@ maxAnalog = 1023 #Android nano 10bits > 2^10 = 1024 - 1 = 1023 (as signal starts
 sampleFrequency = 100 #times per second
 
 #Video meta
+title = 'testing'
+creator = 'Anon'
 length = 20 #seconds
 
 
@@ -24,7 +26,7 @@ def countdown(seconds=3):
 
 if __name__ == '__main__':
 
-    scripter = funscript.Scripter(baudRate, maxAnalog, sampleFrequency)
+    scripter = funscript.Scripter(baudRate, maxAnalog, sampleFrequency, label=title)
 
     def shutdown(signum, frame):
         scripter.serialReader.stop()
@@ -34,5 +36,9 @@ if __name__ == '__main__':
 
     countdown()
 
-    scripter.startRecording(length=length, print2terminal=True)
+    points = scripter.startRecording(length=length, print2terminal=True)
+
+    points = funscript.pointFilter(points)
+
+    funscript.printFile(points, length, title=title, creator=creator)
 
