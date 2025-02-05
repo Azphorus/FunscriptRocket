@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import functions.serial as serialHelp
+import functions.processing as processing
 
 
 class Scripter():
@@ -108,4 +109,23 @@ class Scripter():
         self.lastPosition = currentPosition
         
         return currentPosition
+
+def pointFilter(npArray, vectorThreshold=0.9, velocityThreshold=3, print2terminal=True):
+    '''
+    Vectorizes then 
+    '''
+    if print2terminal:
+        print(f'Original length: {len(npArray[0])}')
+
+    points = processing.rdpAlgorithm(points, threshold=vectorThreshold)
+
+    if print2terminal:
+        print(f'Vectorized: {len(points[0])}')
+
+    points = processing.velocityFilter(points, threshold=velocityThreshold)
+
+    if print2terminal:
+        print(f'Velocity Filter: {len(points[0])}')
+
+    return points
 
