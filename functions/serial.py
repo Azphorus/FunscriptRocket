@@ -90,7 +90,7 @@ def getComPort(retryAttempts=100, retryWait=1):
         [print(f'{i}: {port} ({desc})') for i, (port, desc) in enumerate(portList, 1)]
 
         return portList[
-            int(input('Please choose which serial device to use by inputting the corresponding number:').strip())][0]
+            int(input('Please choose which serial device to use by inputting the corresponding number:\n').strip())][0]
     
     return portList[0][0]
 
