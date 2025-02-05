@@ -33,10 +33,13 @@ class Scripter():
 
         self.serialReader = serialHelp.SerialReader(comPort, baudRate)
 
-    def startRecording(self, length, print2terminal=False):
+    def startRecording(self, length, lengthBuffer=3, print2terminal=False):
         '''
-        length: Length of funscript in seconds.
+        length: Length of funscript in seconds (round up video length).
+        lengthBuffer: Extra seconds incase the recording is not (perfectly) synced.
         '''
+        length += lengthBuffer
+
         startTime = time.time()
         
         startPosition = self.getPosition()
