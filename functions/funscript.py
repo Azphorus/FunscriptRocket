@@ -35,10 +35,11 @@ class Scripter():
 
         self.serialReader = serialHelp.SerialReader(comPort, baudRate)
 
-    def startRecording(self, length, lengthBuffer=3, print2terminal=False):
+    def startRecording(self, length, lengthBuffer=3, print2terminal=False, appendTime=100):
         '''
         length: Length of funscript in seconds (round up video length).
         lengthBuffer: Extra seconds incase the recording is not (perfectly) synced.
+        appendTime: Time in ms for when to append the last position a millisecond before current time.
         '''
         length += lengthBuffer
 
@@ -63,6 +64,9 @@ class Scripter():
         currentTime = 0
         maxTime = length*1000
 
+        lastPosition = None
+        lastTime = None
+
         while self.serialReader.isRunning():
 
             time.sleep(1/self.sampleFrequency)
@@ -81,8 +85,17 @@ class Scripter():
                 if i > maximumPoints:
                     break
 
+                if lastTime is not None:
+                    if (currentTime - lastTime) > appendTime:
+                        self.points[0][i] = currentTime - 1
+                        self.points[1][i] = lastPosition
+                        i += 1
+
                 self.points[0][i] = currentTime
                 self.points[1][i] = currentPosition
+
+                lastTime = currentTime
+                lastPosition = currentPosition
 
                 if print2terminal:
                     print(f'[{self.points[0][i]}, {self.points[1][i]}]')
