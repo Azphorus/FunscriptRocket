@@ -1,22 +1,18 @@
-import functions.serial as serialHelp
 import time
 import signal
-import rdppy
+import functions.funscript as funscript
+
 
 baudRate = 9600 #bits per second
-resolution = 1024 #Android nano 10bits = 2^10
+maxAnalog = 1023 #Android nano 10bits > 2^10 = 1024 - 1 = 1023 (as signal starts at 0)
 sampleFrequency = 100 #times per second
 
 if __name__ == '__main__':
 
-    comPort = serialHelp.getComPort()
-
-    time.sleep(0.1) #To ensure device is fully initiated
-
-    reader = serialHelp.serialReader(comPort, baudRate)
+    scripter = funscript.Scripter(baudRate, maxAnalog)
 
     def shutdown(signum, frame):
-        reader.stop()
+        scripter.serialReader.stop()
 
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
@@ -35,8 +31,12 @@ if __name__ == '__main__':
             'Update frequency needs to be at least '
             'double the sample frequency to avoid sampling errors!')
 
-    while reader.isRunning():
-        print(reader.latestValue())
+    while scripter.serialReader.isRunning():
 
-        time.sleep(1)
+        position = scripter.getPosition()
+
+        if position is not None:
+            print(position)
+
+        time.sleep(1/sampleFrequency)
 
